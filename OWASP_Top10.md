@@ -33,4 +33,23 @@
   - Giới hạn số lần đăng nhập: Khi đăng nhập sai một số lần nhất định, sẽ ngăn đăng nhập tiếp. Đương nhiên những cu hackẻ lỏd thì vẫn có cách để fake HWID, NetID và đủ thứ khác nếu cần để đánh lừa hệ thống đấy là người khác, như thế có thể tiếp tục đăng nhập (tuỳ hệ thống thì nó còn chặn đăng nhập trên toàn hệ thống, nhưng thế thì lại khổ thằng user thật)
   - Thời gian tạm dừng giữa các lần đăng nhập sai: Như kiểu đt sai tầm 5 lần là bắt đợi 5 phút rồi tăng dần, hay tk ngân hàng nhập sai nhiều lần là coi như đi. Cái này tác động trực tiếp vào tài khoản của user đấy nên là có fake như nào, thâm chí cả user thực sự của nó cũng ăn block :|| bảo mật thật nhưng chỉ khổ thằng bị tấn công
 - **Ví dụ thú vị**:
-  - Tôi thấy có cái bài này hay cực trên THM :||
+  - Tôi thấy có cái bài này hay cực trên THM :|| Nó bị một cái form đăng nhập đơn giản với login với register thôi
+  - Ta thử reg một tài khoản là ```darren``` nhưng nó trả về lỗi là tài khoản đã tồn tai, như vậy thì đã biết được có tồn tại một tài khoản tên ```darren```
+  - Ta tiếp tục reg reg tài khoản tên là ``` darren``` (thêm dấu cách ở đầu), thì lúc đấy ta lại đăng ký được, rồi thử login thì ta lại có được những thông tin của acc darren kia
+  - Giải thích cho vấn đề này là do dev quên vệ sinh đầu vào (sanitize input) tức usrname với passwd ấy, điều này có thể khiến hệ thống dễ bị tấn công như SQL Injection. Thành ra lúc reg thì nó coi là 2 cái khác nhau nhưng log nó lại coi là 1
+
+# Sensitive Data Exposure
+- Nếu các ứng dụng web không bảo vệ dữ liệu nhảy cảm như thông tin tài chính hay pass, hacker có thể giành quyền truy cập vào dữ liệu đó và sử dụng cho các mục đích bất chính. Một phương pháp phổ biến để lấy cắp thông tin nhạy cảm là sử dụng một cuộc tấn công on-path attack
+- Có thể giảm thiểu bằng cách mã hoá (encrypt) tất cả dữ liệu nhảy cảm cũng như vô hiệu "cache của bất kỳ thông tin nhảy cảm nào". Ngoài ra, các web dev nên cẩn thân để đảm bảo rằng họ không lưu trữ bất kỳ dữ liệu nhảy cảm nào một cách không cần thiết
+  - **Cache** lưu trữ tạm thời dữ liệu để sử dụng lại. VD: Trình duyệt web thường sẽ lưuu vào cache các website để sau này truy cập lại sẽ nhanh hơn do đã có những dữ liệu nạp sẵn
+## SQLite
+- Cách phổ biến nhất để lưu trữ lượng lớn data theo một format mà có thể truy cập từ nhiều nơi cùng lúc là dtb. Dtb engine thường follow theo SQL syntax, tuy nhiên NoSQL cũng đang trở nên dần phổ biến
+- Một dtb có thể được lưu trữ như là một file. Những dtb này được gọi là **flat-file dtb**, vì chúng có thể lưu trữ như một file đơn lẻ trên máy. Điều này hỗ trợ set up dtb server dễ dạng hơn.
+- Như đã nói ở trên flat-file dtb được lưu như một file. Điều này thường thì không có vấn đề gì với web app, nhưng điều gì sẽ xảy ra nếu lưu trữ dưới quyền root của website (VD: Một trong những file mà user kết nối tới website có thể truy cập). Ta có thể download và thực hiện truy vấn trên chính máy của mình với toàn quyền.
+- Format phổ biến nhất (và cũng là đơn giản nhất) của fate-fle dtb là một **sqlite** dtb. Nó có thể được tương tác bằng hầu hết các lang lập trình, và có sẵn một client để truy vấn chúng trên cmd line. Client này gọi là **sqlite3**, và được install mặc định trên Kali
+- Các bước thực hiện thực hiện:
+  - Download dtb, kiểm tra loại file ```file <tên_file>``` \![image](https://github.com/Myozz/Web_Applications/assets/94811005/16714219-02bd-4b38-a8df-f6890295ad02)
+  - Nếu kiểm tra thấy nó là file sqlite, thì truy cập bằng lệnh sqlite3 <tên_file> ![image](https://github.com/Myozz/Web_Applications/assets/94811005/bf775cbc-37e0-46c6-94e3-de124177c26b)
+  - Kiểm tra các table trong dtb bằng ```.tables``` ![image](https://github.com/Myozz/Web_Applications/assets/94811005/efd0b5e9-c9c7-4d6a-9bef-7bd24bd09a62)
+  - Lấy thông tin các cột trong dtb bằng lệnh ```pragma table_info(customers);``` rồi sau đó dùng ```select * from customers;``` để thực hiện truy vấn ![image](https://github.com/Myozz/Web_Applications/assets/94811005/dfacf229-3ba3-41ee-8dbe-47a90131c614)
+  - Từ 2 lệnh trên có biết được table có 4 cột: custName, creditCard và password. Đối chiếu nó với các truy vấn trong select, thế là ta đã hoàn thành **Sensitive Data Exposure** bằng SQLite rồi đấy

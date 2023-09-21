@@ -72,185 +72,23 @@
 ## Giới thiệu
 - XSS là một lỗ hổng bảo mật được tìm thấy trong web app. Là một loại lỗ hổng cho pháp atker thực thi mã độc và chạy nó trên máy mục tiêu
 - Một web app có thể bị tấn công XSS nếu dữ liệu đầu vào của user chưa được chuẩn hoá. XSS có thể viết bằn JS, VBS, Flash hay CSS. Có 3 loại XSS chính:
-  - Stored XSS: Loại XSS nguy hiểm nhất. 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  - Stored XSS: Loại XSS nguy hiểm nhất. Đây là nơi phát sinh chuỗi độc từ web dtb. Điều này thường xảy ra khi một web cho phép user input không cần "khử trùng" (bỏ những "phần độc" của user input) khi thêm vào dtb
+  - Reflected XSS: Payload đọc là một phần của request tới web của nạn nhân. Web sẽ reposonse lại payload này cho user. Lú vc, tùm lại là một atker cần đánh lừa nạn nhân click vào một URL để lấy cái payload đấy phục vụ tấn công
+  - DOM-Based XSS: DOM (Document Object Model) đ biết dịch như nào :|| mô hình tài liệu đối tượng à. Là một giao diện lập trình cho HTML và XML. Nó đại diện cho page nên chương trình có thể thay đổi tài liệu, cấu trúc, style và nội dung. Một web page là một document và document này có thể được hiển thị cả ở cửa số trình duyệt lẫn HTML source
+## XSS Payload
+- Hãy nhớ, XSS là một lỗ hổng có thể thực thi mã độc JS trên máy nạn nhân, dưới đây là một số payload phổ biến:
+  - Popup's ```(<script>alert(“Hello World”)</script>)```: Tạo một tin nhắn "Hello World" pop up trên máy nạn nhân
+  - Writing HTML (document write) - Đề code của mình lên Web HTML (đơn giản là phá toàn bộ page)
+  - [XSS Keylogger](http://www.xss-payloads.com/payloads/scripts/simplekeylogger.js.html). Bạn có thể log lại toàn bộ keystroke của một user, chôm pass và nhưng thông tin khác mà họ nhập vào
+  - [Port Scanning](http://www.xss-payloads.com/payloads/scripts/portscanapi.js.html). Một mini local port scanner :|| chi tiết như nào thì tự tìm hiểu
+- XSS-Payloads.com là một website cung cấp các XSS payloads, tools, tài liệu và hơn thế nữa. Bạn có thể download XSS payload có khả năng chụp ảnh webcam hay một port/net scanner vjp pro hơn
+
+# Insecure Deserialization (Dẹp)
+
+# Components with known Vuln (Đối tượng với lỗ hổng đã biết)
+- Vào một ngày đẹp giời, bạn thấy công ty hay đại khái thế mà bạn pentest đang dùng một prog có cái lỗ hổng to vcl
+- Ví dụ: Công ty óc vật không chịu update WordPress vài năm giời, và sử dụng một tool như wpscan, bạn thấy nó đang ở ver 4.6. Làm vài đường research sẽ thấy WordPress 4.6 có một lỗ hổng là RCE (Remote code Exec), thâm chí nó còn có trên exploit-db luôn rồi cơ :O tuyệt, hack cụ cái công ty luôn
+- Có thể thấy công ty có pha tự huỷ cực manh, bởi nó yều cầu rất ít từ atker để khai thác cái lỗ hổng rõ mồn một này :||. Tình huống này tệ vcl, phải làm sao đấy?
+- Và từ đó, OWASP rate cho nó con 3 (là một con điểm cao), vì việc này cực kì dễ xảy ra :||
+## Exploit
+- Chỉ với thông tin về lỗ hổng, mọi thứ coi như đã được định đoạt sẵn cho chúng ta. Công việc của ta là tìm ra thông tin phần mềm, và research đến khi tìm được exploit. 

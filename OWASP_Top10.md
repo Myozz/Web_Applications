@@ -1,6 +1,6 @@
 # Giới thiệu :||
 - OWASP (Open Web Application Security Project) là một tổ chức phi lợi nhuận tập trung vào việc tìm hiểu các công nghệ và cách khai thác web, đồng thời cung cấp các tài nguyên và công cụ được thiết kế để cải thiện tính bảo mật của software app
-- Top 10 bao gồm
+- Top 10 bao gồm (top 10 này cũ vc rồi, đề nghị tự cập nhật trên web chính)
   - Injection
   - Broken Authentication
   - Sensitive Data Exposure
@@ -54,4 +54,203 @@
   - Lấy thông tin các cột trong dtb bằng lệnh ```pragma table_info(customers);``` rồi sau đó dùng ```select * from customers;``` để thực hiện truy vấn ![image](https://github.com/Myozz/Web_Applications/assets/94811005/dfacf229-3ba3-41ee-8dbe-47a90131c614)
   - Từ 2 lệnh trên có biết được table có 4 cột: custName, creditCard và password. Đối chiếu nó với các truy vấn trong select, thế là ta đã hoàn thành **Sensitive Data Exposure** bằng SQLite rồi đấy
 
+**NOTE**: Tôi sẽ viết cả một đoạn dài ngoằng về XML External Entity (Thực thể ngoài XML) và Broken Access Control (Trình kiểm soát truy cập hỏng) rồi nhưng có vẻ quên save nên nó mất cm luôn :|| nên nó k có ở đây nữa :||
+  - Đại khái XEE thì là dùng XML để triển khai các XXE Payload nhằm khai thác thông tin
+  - Broken Access Control thì là lợi dụng config xác thực kém để sửa url hoặc đại khái thể để lấy thông tin của user khác
 # Security Misconfiguration (Cấu hình bảo mật ngu)
+- Sec Misconfig tách biệt khỏi top 10 lỗ hổng bởi chúng xảy ra khi bảo mật được cấu hình đúng cách nhưng làm chưa tới :||
+- Sec misconfig gồm:
+  - Cấu hình permission ngu trên cloud serv, như S3 bucket (tự gg xem nó là gì)
+  - Có những feature không cần thiết được bật, như serv, page, account hay đặc quyền
+  - Tài khoản mặc định với pass chưa đoỏi
+  - Báo lỗi quá chi tiết và cho phép atker thêm thông tin về hệ thống
+  - Không sử dụng HTTP security header
+    - HTTP header được được biết đến nhiều và bị khinh cũng nhiều. Tìm kiếm sự cần bằng giữa khả năng sử dụng và bảo mật, dev triển khai các chứng năng thông qua header khiến app linh hoạt và an toàn hơn.\
+- Lỗ hổng này có thể dẫn tới nhiều lỗ hổng khác, như thông tin xác thực mặc định cho bạn truy cập vào dữ liệu nhạy cảm, XXE hay cmd injection trên admin page
+
+# Cross-site Scripting (XSS)
+## Giới thiệu
+- XSS là một lỗ hổng bảo mật được tìm thấy trong web app. Là một loại lỗ hổng cho pháp atker thực thi mã độc và chạy nó trên máy mục tiêu
+- Một web app có thể bị tấn công XSS nếu dữ liệu đầu vào của user chưa được chuẩn hoá. XSS có thể viết bằn JS, VBS, Flash hay CSS. Có 3 loại XSS chính:
+  - Stored XSS: Loại XSS nguy hiểm nhất. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

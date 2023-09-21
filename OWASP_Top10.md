@@ -53,3 +53,5 @@
   - Kiểm tra các table trong dtb bằng ```.tables``` ![image](https://github.com/Myozz/Web_Applications/assets/94811005/efd0b5e9-c9c7-4d6a-9bef-7bd24bd09a62)
   - Lấy thông tin các cột trong dtb bằng lệnh ```pragma table_info(customers);``` rồi sau đó dùng ```select * from customers;``` để thực hiện truy vấn ![image](https://github.com/Myozz/Web_Applications/assets/94811005/dfacf229-3ba3-41ee-8dbe-47a90131c614)
   - Từ 2 lệnh trên có biết được table có 4 cột: custName, creditCard và password. Đối chiếu nó với các truy vấn trong select, thế là ta đã hoàn thành **Sensitive Data Exposure** bằng SQLite rồi đấy
+
+# Security Misconfiguration (Cấu hình bảo mật ngu)

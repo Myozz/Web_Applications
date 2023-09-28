@@ -27,7 +27,11 @@
 - Công cụ: ```nmap```, ```Burp Suite```, ```nikto```
 ## Emumerate cùng Búp Măng Sui (Burp Suite)
 - Không hiểu sao từ lúc dùng giao diện cmd thì chuyển sang lại một tool dùng GUI nó lại khó lạ thường :))
-- 
+### Lấy subdomain bằng Burp
+- Mục ```target```, chọn ```Scope Settings```, Tick vào ```Use advanced scope control```
+- Add domain của bạn vào dưới dạng sau: ```.*\.<đầu>\.<đuôi>$```
+  - Ví dụ ```.*\.facebook\.com$```
+- Sau đấy ta chỉ cần truy cập vào trang web đó trên trình duyệt, rồi filter các target được add scope là có danh sách subdomain rồi
 # Gaining Access
 - Như tên, lấy quyền truy cập :|| sử dụng lỗ hổng vừa tìm được
 

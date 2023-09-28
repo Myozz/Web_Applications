@@ -25,7 +25,9 @@
 # Scanning and Emumeration (Quét + Liệt kê)
 - Là quá trình scan kiểm vuln :||
 - Công cụ: ```nmap```, ```Burp Suite```, ```nikto```
-
+## Emumerate cùng Búp Măng Sui (Burp Suite)
+- Không hiểu sao từ lúc dùng giao diện cmd thì chuyển sang lại một tool dùng GUI nó lại khó lạ thường :))
+- 
 # Gaining Access
 - Như tên, lấy quyền truy cập :|| sử dụng lỗ hổng vừa tìm được
 

@@ -1,0 +1,2 @@
+- Cú pháp: ```nikto -h <address>```. Ví dụ: ```nikto -h https://www.irobot.com``` (tốt nhất là copy luôn cái url mà vào được trên trình duyệt)
+- Nó sẽ cho ra các lỗ hổng của mục tiêu 

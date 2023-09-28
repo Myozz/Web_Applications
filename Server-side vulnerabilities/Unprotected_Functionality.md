@@ -15,3 +15,6 @@
   - Ở lab này thì ta có thể áp dụng gobuster hay burp măng để tìm các path nhưng tôi nghĩ không cần lắm nên đã thửu test luôn xem có path ```robots.txt``` hay không và có luôn :|| ![image](https://github.com/Myozz/Web_Applications/assets/94811005/22e6d074-7299-4272-b43a-2e75062c0d22)
   - Vào thử admin-panel bằng path trong ```robots.txt``` nhé :|| nó hiện ra một giao diện quản lý user ![image](https://github.com/Myozz/Web_Applications/assets/94811005/214d8879-8545-4262-ba84-f8b99732ccee)
   - Bấm delete và ez vcl
+
+# Unprotected Functionality (Chức năng không được bảo vệ) part 2
+- Trong một số trường hợp, 

@@ -38,7 +38,7 @@
 - Lại là con web củ lìn này, kiểu b gì ctrl + u chả có URL ![image](https://github.com/Myozz/Web_Applications/assets/94811005/0d7ba1f1-1bf2-4683-8fc9-595d9860ffea)
 
 # Parameter-based access control methods (Phương thức kiểm soát truy cập dựa trên tham số?)
-- Một số app xác định quyền truy cập người dùng dựa vào role của họ khi login, và sau đó lưu trữ thông tin này trong một nơi gọi là **user-controllable location** (vị trí do người dùng kiểm soát :||) - tôi dịch đần vc. Vị trí này có thể là:
+- Một số app xác định quyền truy cập người dùng dựa vào role của họ khi login, và sau đó lưu trữ thông tin này trong một nơi gọi là **user-controlable location** (vị trí do người dùng kiểm soát :||) - tôi dịch đần vc. Vị trí này có thể là:
   - Một field ẩn
   - Một cookie
   - Preset query string parameter (dịch đơn giản là truy vấn chuỗi đi :||)
@@ -50,6 +50,35 @@
     - https://insecure-website.com/login/home.jsp?role=1
       - Đại khái là login role = 1
 - Cách này thiếu an toàn bởi một user có thể điều chỉnh giá trị và truy cập vào những functionality mà họ không được uỷ quyền, như admin :||
-
 ## Lab (lag vc)
 - Giải xong lòi cả l nên lười viết :|| mai viết bù
+
+# Horizontal Privilege Escalation (Leo thang đặc quyền theo chiều ngang)
+- Horizontal Priv Esc xảy ra nếu một user có thể chiếm quyền truy cập tài nguyên thuộc sở hữu của user khác, thay vì là tài nguyên của riêng họ. Ví dụ, nếu một nhân viên có thể truy cập vào bản ghi của các nhân viên khác tự nhiên như ruồi, thì đó là horizontal priv esc
+- Horizon Priv Esc Attack có thể sử dụng cùng phương thức với vertical priv esc. Ví dụ, một user có thể truy cập tài khoản của họ bằng URL:
+
+      https://insecure-website.com/myaccount?id=123
+- Nếu một atker sửa tham số ```id``` thành id của user khác, họ có thể chiếm quyền truy cập account page, dữ liệu và các tính năng của user đó
+- **NOTE**: Bên trên là một ví dụ của một **Insecure direct object reference** (IDOR) - tham chiếu đối tượng trực tiếp không an toàn. Loại lỗ hổng này phát sinh ở giá trị tham số của user-controller được sử dụng để truy cập tài nguyên hay tính năng trực tiếp
+- Trong một số app, các tham số có thể bị khai thác có giá trị ở dạng không dễ đoán. Ví dụ, thay vì dùng các số theo thứ tự tăng dần làm id hay đại khái vậy, một app có thể sử dụng **Globally Unique Indentifiers** (GUIDs) - Số nhận dạng toàn cầu (Có thể hiểu nó có cơ chế gần như số seri hay ID CCCD). Tuy nhiên, các GUIDs của các user có thể bị rò rỉ ra một nơi khác trong app, nơi mà user được tham chiếu đên (ví dụ như tin nhắn hay bình luận)
+
+## Lab (GUID)
+- Lab này yêu cầu tìm GUID của carlos rồi gửi API key của user này đi để hoàn thành
+- Dm lúc nào hay bị quên ghi lại quá :|| đại khái lab này là vào blog mà author của nó là thằng carlos, sau đó check source để xem id của nó. Lấy nó rồi priv esc thôi
+
+# Horizon to Vertical Priv Esc
+- **NOTE**: Điểm khác nhau giữa Vertical và Horizontal là:
+  - Vertical tấn công để chiếm quyền truy cập các user cấp cao hơn
+  - Horizontal tấn công chiếm quyền truy cập các user có quyền hạn ngang hàng, từ đó triển khai các mục đích khác
+- Thường thì một Horizon Priv Esc Atk có thể được chuyển sang Vertical Priv Esc, bằng cách xâm nhập vào tài khoản của user có đặc quyền cao hơn. Ví dụ, một Horizon Esc có thể cho pháp một atker reset hay chôm pass của user khác. Nếu atker hướng mục tiêu tới admin và có được tài khoản có họ, thì họ sẽ có thể chiếm quyền truy cập của admin và thực hiện vertical priv esc
+- Một atker có thể chiếm quyền truy cập vào account page của user khác, bằng cách sử dụng kĩ thuật giả mạo tham số đã được đề cập trong phần **Horizon Priv Esc**
+
+      https://insecure-website.com/myaccount?id=456
+- Nếu user mục tiêu là một app admin, thì atker sẽ chiếm quyền truy cập tới admin acc page. Page này sẽ tiết lộ admin pass hay cung cập phương tiện đổi pass, hay cũng có thể cung cập quyền truy cập trực tiếp vào các tính năng đặc quyền
+## Lab củ lìn
+- Lab này có một admin acc page, nơi chứa pass của các user
+- Để hoàn thành, chôm pass của admin và sử dụng để xoá ```carlos``` (tội thằng carlos vcl :))
+- login to this fcking user ![image](https://github.com/Myozz/Web_Applications/assets/94811005/ff908b42-5cc0-415e-939a-ea69a6a21d90)
+- Thay id là ```administrator```
+- Vào admin panel, ta thấy có một pass đang chờ bị xử :|| ![image](https://github.com/Myozz/Web_Applications/assets/94811005/aef28323-9927-4a80-9e7f-01ab867c67a1)
+- Dùng inspect (kiểm tra phần tử) để sửa type của password thì nó sẽ hiện lên, từ đấy login vào admin và xoá cu các-lốt

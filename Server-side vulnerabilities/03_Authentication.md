@@ -46,5 +46,5 @@
 - Tìm ở cuối dòng giá trị của tham số username (là cái username bạn nhập vào), chuột phải rồi send to Intruder
 - Khi vào Intruder, cái username ta vừa chọn có thêm giá trị $ 2 bên (thể hiện cho giá trị động). Pass ta không đổi vì mục tiêu của ta là tìm username trước
 - Chuyển sang tab Payload của Intruder, set Payload Type là Simple List. Sau đó copy wordlist username được cung cấp rồi paste vào payload setting rồi start atk
-- Sau khi xong, ta để ý cột Length có một (hoặc nhiều) entries dài hơn hẳn phần còn lại, so sánh response của payload này với phần còn lại, thì các response còn lại trả về ```invalid username```, còn payload này thì là ```incorrect password``` cho thấy nó là username hợp lệ
+- Sau khi xong, ta để ý cột Length có một (hoặc nhiều) entries dài hơn hẳn phần còn lại, so sánh response của payload này với phần còn lại, thì các response còn lại trả về ```invalid username```, còn payload này thì là ```incorrect password``` cho thấy nó là username hợp lệ ![image](https://github.com/Myozz/Web_Applications/assets/94811005/78fae010-2f67-4789-87f1-fbe8d0553f20)
 - Quay lại tab Position của Intruder. Chọn clear, rồi thay đổi ```username``` thành username hợp lệ vừa tìm được. Lần này làm như bước đầu nhưng là chọn với ```password```

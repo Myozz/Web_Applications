@@ -48,3 +48,13 @@
 - Chuyển sang tab Payload của Intruder, set Payload Type là Simple List. Sau đó copy wordlist username được cung cấp rồi paste vào payload setting rồi start atk
 - Sau khi xong, ta để ý cột Length có một (hoặc nhiều) entries dài hơn hẳn phần còn lại, so sánh response của payload này với phần còn lại, thì các response còn lại trả về ```invalid username```, còn payload này thì là ```incorrect password``` cho thấy nó là username hợp lệ ![image](https://github.com/Myozz/Web_Applications/assets/94811005/78fae010-2f67-4789-87f1-fbe8d0553f20)
 - Quay lại tab Position của Intruder. Chọn clear, rồi thay đổi ```username``` thành username hợp lệ vừa tìm được. Lần này làm như bước đầu nhưng là chọn với ```password```
+
+# Bypass two-factor authentication (Bypass xác minh 2 bước)
+- Đôi khi, việc triển khai 2FA sẽ có những sai sót khiến nó có thể bị bypass dễ dàng.
+- Nếu user cần nhập pass trước khi phải nhập mã xác minh 2fA ở 2 trang riêng biệt, user thực ra đã ở trạng thái "đã login" khi nhập mật khẩu xong (nhập 2FA chỉ đơn giản là để hiện nó ra). Trong trường hợp này, có thể ta sẽ trực tiếp skip 2FA ngay sau khi nhập mật khẩu. Thỉnh thoảng, bạn sẽ nhận ra một website không thực sự kiếm tra xem bạn có hoàn thành bước 2 hay không trước khi loading page
+## Lab
+- Việc ta cần làm là bypass 2FA của lab này, và đột nhập vào tài khaonr carlos
+- Login vào account wiener của mình (thực ra không log cũng được, chủ yếu là để lấy cái đường path vào account page thôi)
+- Login vào tài khoản carlos, nó sẽ bắt điền 2FA nhưng cực kì ngu, ta có 2 hướng giải quyết đoạn này
+  - Dùng path ta xem được bên wiener, là ```/my-account```
+  - Có cái nút Back to Home, dùng nút đấy để back về trang chủ rồi click lại vào My Account là xong ![image](https://github.com/Myozz/Web_Applications/assets/94811005/7436221c-1707-455c-97ef-4878f9351b42)

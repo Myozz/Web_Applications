@@ -22,3 +22,14 @@
 
 - Server sẽ tìm nạp nội dung của ```/admin``` và gửi lại cho user, thế là đi'
 - Atker có thể truy cập vào ```/admin``` URL, nhưng đương nhiên không sử dụng được các tính năng cho admin vì không được uỷ quyền. Điều này có nhiều một atker sẽ không thấy gì đáng giá đâu. Tuy nhiên, nếu request tới ```/admin``` URL từ local machine (máy của user mực tiêu), thế là bypass được kiểm soát truy cập thông thường. App sẽ có toàn quyền truy cập vào các tính năng của admin, bởi vì request đến từ vị trí được tin tưởng (trursted location) - Túm lại khiến máy của user request đến localhost, khi đấy nó sẽ tự truy cập được vào do thấy request đến từ nguồn tin cậy
+
+# SSRF atk against the server - part 2
+- Tại sao app lại hoạt động theo cách này, và ngầm tin tưởng request đến từ local machine? Điều này có thể nảy sinh từ các lí do sau:
+  - Kiểm tra kiểm soát truy cập có thể được triển khai trong một đối tượng khác năm trước app server. Khi một kết nối được thiết lập trở lại server, sẽ bypass được đợt kiểm tra
+  - Với mục đích khắc phục thiệt hai, app có thể cho phép admin truy cập mà không cần login, tới mọi user từ các local machine. Điều này cung cấp một cách cho admin để khôi phục hệ thống nếu họ mất thông tin xác thực của họ. Điều này giả định rằng chỉ người dùng hoàn toàn được tin tưởng mới đến trực tiếp từ máy chủ
+  - Giao diện admin có thể nghe một port khác tới main app, và có thể không thể truy cập trực tiếp bởi user
+- Những kiểu trust này, nơi mà request đến từ local machine được xử lý khác với request từ bên ngoài, thường khiến SSRF trở thành một lỗ hổng nghiêm trọng
+## Lab
+- Đống lý thuyết bên trên dịch ra thực sự lú não vcl
+- Ok thì lab này có một feature check hàng hoá bằng cách tìm nạp dữ liệu từ hệ thống nội bộ
+- Để giải lab này, thay đổi URL kiểm tra để truy cập vào giao diện admin tại ```http://localhost/admin``` và xoá user ```carlos```

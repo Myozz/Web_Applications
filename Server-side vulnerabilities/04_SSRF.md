@@ -33,3 +33,9 @@
 - Đống lý thuyết bên trên dịch ra thực sự lú não vcl
 - Ok thì lab này có một feature check hàng hoá bằng cách tìm nạp dữ liệu từ hệ thống nội bộ
 - Để giải lab này, thay đổi URL kiểm tra để truy cập vào giao diện admin tại ```http://localhost/admin``` và xoá user ```carlos```
+- Trước hết, vào xem một sản phẩm bất kỳ ở trang chủ lab, sau đó bật intercept ở tab proxy
+- Check stock ![image](https://github.com/Myozz/Web_Applications/assets/94811005/d56d66c9-69cf-4af4-94d6-bd65aacc682b)
+- Để ý dòng StockAPI ![image](https://github.com/Myozz/Web_Applications/assets/94811005/3aaa6ca9-123a-4fc5-8b2d-72c01cdfd13f)
+- Chuột phải, send to repeater rồi đổi stockapi thành ```http://localhost/amdin``` rồi send
+![image](https://github.com/Myozz/Web_Applications/assets/94811005/c726b6ce-b705-463a-be18-144e332773f3)
+- Tìm xem dòng path để delete carlos ở đâu, lấy nó rồi quay lại Proxy để thay stockapi bằng path lấy được rồi tiến hành forward ![image](https://github.com/Myozz/Web_Applications/assets/94811005/789e71d7-175c-48c2-9868-9bfbd7677391)

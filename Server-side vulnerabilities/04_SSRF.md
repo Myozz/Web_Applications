@@ -43,7 +43,7 @@
 # SSRF atk against other Back-end Sys (SSRF tấn công chống lại hệ thống back-end khác)
 - Phụ đạo thêm một chút về back-end thì nó là phần cốt lõi của một website, mang chức năng lưu trữ dữ liệu, xử lý các yêu cầu của người dùng, Database là một ví dụ dễ thấy nhất của Back-end
 - Trong một số trường hợp, app server có thể tương tác với back-end sys mà không thể truy cập trực tiếp bởi user. Những hệ thống này thường có những IP riêng tư mà không thể định tuyến được. Back-end sys thường được bảo vệ bởi cấu trúc liên kết mạng (network topology), vậy nên bảo mật của chúng thường yếu hơn. Trong đa số trường hợp, back-end sys nội bộ sẽ chứa những tính năng nhạy cảm mà có thể được truy cập mà không cần xác thực bởi bất kỳ ai có thể tương tác với hệ thống
-- Ở ví dụ trước, tưởng tượng có một giao diện admin ở back-end URL ```https://192.168.0.68/admin``` Một atker có thể gửi những request sau để khai thác lỗ hổng SSRF, và truy cập vào giao diện adin
+- Ở ví dụ trước, tưởng tượng có một giao diện admin ở back-end URL ```https://192.168.0.68/admin```(thay vì localhost như ví dụ trước) Một atker có thể gửi những request sau để khai thác lỗ hổng SSRF, và truy cập vào giao diện adin
 
         POST /product/stock HTTP/1.0
         Content-Type: application/x-www-form-urlencoded

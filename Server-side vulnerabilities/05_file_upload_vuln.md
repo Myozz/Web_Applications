@@ -41,3 +41,14 @@ Toi bi buoi
 - Như đã thấy, message body được chia thành các phần riêng biệt cho một input (img, desc, username). Một phần đều có một header là ```Content-Disposition``` (Bố trí nội dung), cung mcấp một số thông tin cơ bản về input field của mỗi part. Những part riêng biệt này cũng có thể gồm ```Content-type``` của riêng chúng (như ví dụ trên thì nó cùng một content type cho cả request, trong img có một cái riêng nữa :||), sẽ thông báo cho server kiểu dữ liệu được gửi của mỗi input
 - Một cách mà website có thể thử để xác thực file upload là kiểm tra ```Content-Type``` của input có đúng là type được cho phép không. Nếu server chỉ đơn giản là cho phép image file, ví dụ, nó có thể chỉ cho phép type kiểu như ```image/jpeg``` hay ```image/jpg```. Vấn đề có thể phát sinh khi giá trị của header được trust bởi server. Nếu không có tí xác thực được thực hiện để kiểm tra xem liệu file có thực sự trùng với MIME type không, kiểu def óc lìn này có thể dễ dàng bypass bằng Burp Repeater
   - Bổ túc MIME type (Multipurpose Internet Mail Extensions) - Tiện tích mở rộng mail đa năng?, là tiêu chuẩn để phân loại file type được sử dụng trên Internet
+## Lab 
+- Con lab này chứa lỗ hổng upload img. Nó có biên pháp ngăn chặn user upload những file khả nghi, nhưng lại phụ thuộc vào input để xác nhân điều này
+- Để giải lab này, upload một php webshell đơn giản và sử dụng nó để lấy nội dung của ```/home/carlos/secret```.
+- Ok triển thôi
+  - Trước mắt login vào acc ```wiener``` cái đã
+  - Trong account pane,, tạo một file php với nội dung ```<?php file_get_content('/home/carlos/secret'); ?>``` rồi thử upload nó lên, đương nhiên là sẽ lỗi rồi :)) bạn nghĩ nó đơn giản vậy sao
+  - Vào Proxy - HTTP History để check GET/POST vừa được gửi đi, ta thấy một GET có url là ```/files/avatars/hack.php``` và một POST có url là ```my-account/avatar``` (hình như chỉ có cái thứ 2 thôi nhưng do tôi làm cái này lúc mọi thứ đã hoàn thành nên có thêm :|| ![image](https://github.com/Myozz/Web_Applications/assets/94811005/b01e26d0-b827-4436-b02a-0ef3f4c78ccf)
+  - Send cái ```my-account/avatar``` sang repeater để test :|| send và check response ![image](https://github.com/Myozz/Web_Applications/assets/94811005/a9c1917c-3354-42dd-9580-552659ee332c)
+    - Để ý response nói là chỉ được up file có type là ```image/jpeg``` hay ```image/png```
+    - Vậy là chỉ cần sửa lại content type của request từ ```application/x-php``` sang ```image/jpeg``` rối send lại ![image](https://github.com/Myozz/Web_Applications/assets/94811005/d4d3e9f1-d555-46d0-a14e-dbb7ae2fbda2) và upload thành công :||
+  - Có thể quay lại panel để mở img ấy ra :|| hoặc send cái ```/file/avatars/hack.php``` thì sẽ chả ra content của file secret

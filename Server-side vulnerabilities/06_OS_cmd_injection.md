@@ -21,3 +21,32 @@
 
       stockreport.pi 381 29
 - Câu lệnh này cho ra trạng thái hàng của sản phẩm cụ thể, rồi tống lại cho user
+
+# Injection OS cmd - tiếp
+- Khi một app không có một sự phòng vệ tốt trước OS cmd Injection, một atker có thể gửi input dưới đây để thực thi một câu lênh bất kì
+
+      & echo aiwèwiguh &
+- Nếu input này được gửi trong ```productID```, command được thực thi sẽ là
+
+      stockreport.pi & echo aiwèwiguh & 29
+- Command ```echo``` có thể khiến cho chuỗi tham số của nó lặp lại ở đầu ra (vd echo myozz sẽ trả về myozz). Đây là một cách hữu dụng để test cho một số loại OS cmd Injection. ```&``` dùng để phân cách các cmd liên tiếp. Trong ví dụ này, sẽ có 3 cmd được thực thi theo thứ thự. Output trả về sẽ như sau:
+
+      Error - productID was not provided
+      aiwefwlguh
+      29: command not found
+  - Ba dòng output này chứng minh rằng:
+    - ```stockreport.pi``` vẫn sẽ được thực thi mà không cần đối số, và nó trả về một thông báo lỗi
+    - Lệnh ```echo``` được thêm vào cũng được thực thi đúng với những gì được điền vào
+    - ```29``` ở cuối cũng được thực thi như một cmd và báo lỗi
+- Việc đặt ```&``` giữa các cmd rất hữu dụng bởi nó khiến cmd được inject vào thực thi riêng biệt. Giảm khả năng bị ngăn chặn thực thi
+## Lab lú lẫn
+- Lab này chứa một OS cmd injection trong stock checker
+- App sẽ thực thi một shell cmd gồm user-supplied product và store IDs, rồi trả lại raw output từ cmd
+- Để giảilab này, chỉ cần thực thi được ```whoami``` là xong
+- Lab này chắc sẽ dễ thôi :||
+- View detailts một cái item bất kì ![image](https://github.com/Myozz/Web_Applications/assets/94811005/f48e8671-8564-45d3-b7ab-a1256300c31c)
+- Bật intercept lên và check stock thử ![image](https://github.com/Myozz/Web_Applications/assets/94811005/2d136713-84ca-490b-8d1f-1d60098cfe55)
+- Dòng cuối cùng sẽ là một nơi lí tưởng để thực thi os cmd injection, tôi sẽ send nó sang repeater để test chuẩn chỉ hơn
+- ```productId=1&storeId=1``` thì tức là shell cmd sẽ bili ```stock.pi 1 1```
+  - Vậy thì chỉ cần thêm một đoạn lệnh ở request là được, tôi sẽ thêm ```|whoami``` vào cuối, tôi đã thử với & nhưng nó chỉ trả về 62 thôi và nó cũng không cho bỏ tham số trong storeID và productID
+  - Thêm vào thì send là xong rồi :||

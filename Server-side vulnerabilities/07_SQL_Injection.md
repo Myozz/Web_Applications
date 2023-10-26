@@ -127,7 +127,7 @@
 - Xem thêm thông tin tại [Cheat Sheet này](https://portswigger.net/web-security/sql-injection/cheat-sheet)
 
 # Tìm cột với kiểu dữ liệu
-- Một SQLi UNION atk cho phép bạn chôm kết quả từ truy vấn. Những dữ liệu thú vị mà bạn muốn chôm thường ở dạng string. Có nghãi bạn cần tìm một hay nhiều cột ở truy vấn gốc có kiểu dữ liệu hoặc tương thích với kiểu string
+- Một SQLi UNION atk cho phép bạn chôm kết quả từ truy vấn. Những dữ liệu thú vị mà bạn muốn chôm thường ở dạng string. Có nghĩa bạn cần tìm một hay nhiều cột ở truy vấn gốc có kiểu dữ liệu hoặc tương thích với kiểu string
 - Sau khi xác định được số cột, bạn có thể thăm dò từng cột một để test xem nó có thể chứa dữ liệu kiểu string hay không. Bạn có thể gửi một series ```UNION SELECT``` payloads để nhét string vào từng cột chia ra làm nhiều lần. Ví dụ, nếu truy vấn trả về 4 cột, ta có thể submit như sau:
 
       ' UNION SELECT 'a',NULL,NULL,NULL--
@@ -144,4 +144,72 @@
 - Thay lại tham số thành như sau: ```'+UNION+SELECT+NULL,'misEGY',NULL--```, nếu lỗi thì chuyển 'misEGY' sang cái NULL khác cho đến khi ra kết quẩ thôi ![image](https://github.com/Myozz/Web_Applications/assets/94811005/6c484244-dccf-48d5-8035-c78cfee87265)
 
 # Sử dụng một SQLi UNION atk để lấy dữ liệu
-- Khi bạn xác định được nố cột của truy vấn gốc và tìm ra được cột nào có chứa string, 
+- Khi bạn xác định được nố cột của truy vấn gốc và tìm ra được cột nào có chứa string, từ đó xác định đâu có thể sẽ chứa thông tin mà bạn cần
+- Giả sử rằng
+  - Truy vấn gốc trả về 2 cột, cả hai đều chứa string
+  - Điểm injection là một chuỗi trích dẫn bên trong ```WHERE```
+  - CSDL goomf 1 bảng ```users``` với 2 cột ```username``` và ```password```
+- Trong ví dụ này, ta có thể lấy nội dung của bảng ```users``` bằng cách gửi input sau
+
+      ` union select username, password from users--
+- Để thực hiện tấn cống, bạn càn biết có một bảng ```users``` với 2 cột như trên. Nếu không có thông tin này, bạn có thể đoán tên bảng hay cột. Tất cả hệ thống thống dtb ngày nay đều cung cấp cách để kiểm tra cấu trúc dtb, và xấc định bảng nào và cột nào có trong dtb
+## Lab lòng lợn
+- Lab này chứa SQLi vuln trong category filter. Kết quả từ truy vấn được trả về trong app's responsse, cho nên bạn có thể sử dụng union atk để thu thấp dữ liệu từ các bảng khác.
+- Dtb gồm một bảng khác là ```users``` với 2 cột ```username``` và ```password```
+- Để giải lab này, thực hiện SQLi Union ATK để thu thập tất cả usrname và pass và sử dụng thông tin thu được để login vào admin
+- Trông lú văn phết nhỉ :|| check thử có bao nhiều cột ![image](https://github.com/Myozz/Web_Applications/assets/94811005/921245a1-a28b-420f-93c6-1d515afbc457)
+- Xác định được có 2 cột thì thử thay null thành string để xem 2 cột này có phải string không (chắc chắn là có r :)) )
+- Giờ sửa request thành một truy vấn username và pass từ bảng users, kết quả sẽ cho ra khác tài khoản trong hệ thống ![image](https://github.com/Myozz/Web_Applications/assets/94811005/0875ebf1-77bc-42db-a1c6-774008d5e0b0)
+- Giờ thì lấy tài khoản admin rồi login thôi :|| ez
+
+# Lấy nhiều nhiều giá trị trong một cột đơn
+- Trong một số trường hợp truy vấn ở ví dụ trước có thể chỉ trả về một cột đơn
+- Bạn có thể lấy nhiều giá trị cùng nhau bên trong một cột đơn bằng cách nối các giá trị với nhau. Bạn có thể thêm một dấu phân cách để giúp bạn phân biệt cách dữ liệu trong cột. Ví dụ, trên Oracle bạn có thể gửi input sau
+
+      ' UNION SELECT username || '~' || password FROM users
+  (trong truy vấn trên thì ```||``` có tác dụng nối dữ liệu từ 2 hay nhiều cột thành một, string ở giữa có mục đích để phân cách)
+- Kết quả trả về trông sẽ như này ![image](https://github.com/Myozz/Web_Applications/assets/94811005/27e763d0-24fd-4355-a390-9fd90ba6f489)
+- Mỗi lang SQL lại có một cú pháp nối cột khác nhau, có thể tham khảo tại [cheatsheet](https://portswigger.net/web-security/sql-injection/cheat-sheet)
+## Lab lếu lều
+- Lab này chứa SQLi vuln trong category filter
+- DTB có bảng users với 2 cột usrname và pass
+- Thực hiện SQLi UNION atk để lấy toàn bộ thông tin usrname và pass rồi sử dụng để login vào admin
+- Lab này tương tự lab trước :|| khác mỗi cái là chỉ có một cột mang kiểu string ![image](https://github.com/Myozz/Web_Applications/assets/94811005/b1cfd800-e4e3-4792-8010-202432d24bfa)
+- Sửa lại câu lệnh truy vấn thành ```'+union+select+null,username||':'||password+from+users--``` để lấy ghép cột username với password :|| thế là chôm được admin acc ![image](https://github.com/Myozz/Web_Applications/assets/94811005/fa496117-fc5a-411b-a3a0-6e8c29d2d219)
+
+# Kiểm tra dtb trong SQLi atk
+- Để khai thác SQLi vuln thì việc tìm kiếm thông tin về dtb là khá cần thiết. Việc này bao gồm
+  - Loại + phiên bản dtb của mục tiêu
+  - Các bảng+cột của dtb mục tiêu
+ 
+# Truy vấn loại và phiên bản éc quy eo
+- Ta có thể xác định cả loại và phiên bản của dtb bằng cách thêm vào một vài cái truy vấn va vẩn
+- Dưới đây là một vài truy vấn để xác định phiên bản dtb cho một số loại dtb phổ biến ![image](https://github.com/Myozz/Web_Applications/assets/94811005/5157231b-0915-4225-9a6b-903e4a8a4ce3)
+- Ví dụ, ta sử dụng UNION atk với input là
+
+      ' UNION SELECT @@version--
+- Nó sẽ trả về thông tin phiên bản của dtb
+## Lab lấy lười lê luôn vào lưng con lợn, lấy bộ lòng luộc lên
+- Lab này dính phải một SQLi uln trong category filter. Có thể sử dụng UNION atk để lấy kết quả của truy vấn được thêm vào
+- Cái lab này dễ vcl nên không viết gì nhiều :)) dm :)) nó dùng comment bằng dấu ```#``` chứ đ phải ```--```, bảo sao mãi đ được :)) cay vc (cái comment # là của MySQL) ![image](https://github.com/Myozz/Web_Applications/assets/94811005/a40409a7-726d-4393-9ca6-5404311635ce)
+- Sau lab này tôi nhận ra mình cần phải check từng loại éc quy eo một :))
+
+# Liệt kê nội dung dtb
+- Hầu hết các loại dtb (trừ Oracle) có một loại view gọi là lược đồ thông tin (infomation schema). Nó cung cấp thông tin và dtb
+- Ví dụ, bạn có thể truy vấn ```infomation_schema.tables``` để liệt kê các bảng trong dtb (nghe ngon vc, thế mà không hiểu sao phải học mấy cái trên :)) )
+
+      SELECT * FROM infomation_schema.tables
+  - Nó sẽ trả về output như sau ![image](https://github.com/Myozz/Web_Applications/assets/94811005/4e1a1a71-2476-4113-b415-73c515429c34)
+- Output cho ta thấy được có 3 bảng ```products```, ```users``` và ```feedback```
+- Ta có thể thực hiện một truy vấn lược đồ tương tự với các cột trong bản đã được xác định như sao
+
+      SELECT * FROM infomation_schema.columns WHERE table_name = users
+  - Lệnh truy vấn vừa rồi sẽ cho ra thông tin về các cột của bảng ```users``` (hình như Microsoft SQL cũng có một câu lệnh nhưng xịn hơn, cho phép xem cấu trúc bảng :)) là ```SP_HELP```, nhưng có lẽ sẽ không được sử dụng vì nó là thủ tục nên không thể tận dụng được SQLi)
+## Lab lông lá
+- Lab này chứa SQLi vuln như mấy lab kia
+- Mục tiêu lấy login vào administrator
+- Let's start :((
+  - Check bảng ![image](https://github.com/Myozz/Web_Applications/assets/94811005/d0bb28c6-a409-4379-9d84-f7eb4cfa885f)
+  - Check cột ![image](https://github.com/Myozz/Web_Applications/assets/94811005/9a9eab82-b01d-4336-882f-6319819a12fd)
+  - Truy vấn username và pass của bảng vừa tìm được ![image](https://github.com/Myozz/Web_Applications/assets/94811005/108cb90d-66be-4c93-8453-1ce36b8fcd48)
+

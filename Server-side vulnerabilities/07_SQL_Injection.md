@@ -213,3 +213,34 @@
   - Check cột ![image](https://github.com/Myozz/Web_Applications/assets/94811005/9a9eab82-b01d-4336-882f-6319819a12fd)
   - Truy vấn username và pass của bảng vừa tìm được ![image](https://github.com/Myozz/Web_Applications/assets/94811005/108cb90d-66be-4c93-8453-1ce36b8fcd48)
 
+# Blind SQLi 
+- Blind SQLi xảy ra khi một app có chữa SQLi vuln, nhưng HTTP responsse của nó không chứa kết quả của truy vấn SQL hay chi tiết của lỗi dtb
+- Nhiều kĩ thuật như UNION không hiệu quả với blind SQLi vuln. Đó là vì chúng dựa trên việc xem kết quá của truy vấn được thêm vào response mà blind SQL không chứa truy vấn để lợi dụng. Đương nhiên vẫn có thể khai thác blind SQLi vuln để truy cập vào dữ liệu mà không cần uỷ quyền nhưng sẽ dùng kĩ thuật khác
+## Khai thác blind SQLi bằng cách kích hoạt respose có điều kiện
+- Xem xét một app sử dụng tracking cookies để thu thập dữ liệu phân tích. Request tới app gồm một cookie header như này
+
+      Cookie: TrackingID=u5YD3PapBcR4lN3e7Tj4
+- Khi một request chứa ```TrackingID``` cookie được tiến hành, app sử dụng một truy vấn SQL để xác định người dùng
+
+      SELECT TrackingID FROM TrackedUsers WHERE TrackingID = 'u5YD3PapBcR4lN3e7Tj4'
+- Truy vấn trên có lỗ hổng, nhưng kết quả của nó không được trả về user. Tuy nhiên, app sẽ có những hanh vi khác nhau phụ thuộc vào truy vấn trả về dữ liệu như nào. Nếu bạn gửi một ```TrackingID``` được công nhân, truy vấn trả về dữ liệu và bạn nhận được một tin nhắn "Welcome Back" của response
+- Hành vi là đủ để có thể khai thác blind SQLi vuln. Bạn có thể thu thập thông tin bằng cách kích hoạt response, phụ thuộc vào điều kiện được inject
+- Để hiểu cách hoạt động của nó, hãy giả định rằng có 2 requests được gửi có chứa ```TrackingID`` cookie
+
+      …xyz' AND '1'='1
+      …xyz' AND '1'='2
+  - Cái đầu tiên sẽ trả về kết quả bởi điều kiện được inject ```AND '1'='1'``` luôn đúng. Vậy nên kết quả 'Welcome Back' sẽ được hiện thị
+  - Cái thứ hai thì rõ ràng là không trả về cái gì rồi :)) lí do như trên
+- Điều này cho phép ta xác định câu trả lời từ bất kì diều kiện đơn được inject nào, và trích xuất dữ liệu từng phân một
+- Ví dụ, giả sử có một bảng ```Users``` với cột ```Username``` và ```Password```, và một user được gọi là ```Administrator```. Bạn có thể xác định pass của admin bằng cách gửi một loạt input để test pass
+- Để thực hiện, ta dùng input dưới đây
+
+      xyz' AND SUBSTRING((SELECT Password FROM Users WHERE Username='Administrator'), 1, 1) > 'm
+  - Nếu nó trả về 'Welcome Back' thì tức là điều kiện đúng (kí tự đầu tiên của pass là một chữ sau ```m```) và ngược lại. Từ đấy ta có thể thu hẹp dần và xác định pass :O (tôi đang thắc mắc nếu pass chứa kí tự đặc biệt thì sao :||)
+> [!NOTE]
+> Hàm ```SUBSTRING``` là hàm lấy string con từ string được thêm vào (theo như google thì nó sẽ không đếm dấu cách khi xác định vị trí kí tự. Một số dtb khác thì nó có thể là ```SUBSTR```
+## Lab ăn lông ở lỗ
+- Lab này chứa Blind SQLi Vlun. App sử dụng một tracking cookie để phân tích dữ liệu, và thực hiện một truy vấn SQL chứa giá trị của cookie được gửi tới
+- Kết quả của truy vấn không được trả về, cũng như k có error message được hiển thị. Nhưng app chứa thông báo 'Welcome Back' nếu truy vấn trả về bất cứ hàng dữ liệu nào
+- DTB gồm một bảng ```users``` với cột ```username``` và ```pâssword```. Bạn cần khai thác Blind SQLi vuln để tìm ra pass của ```administrator``` user
+- 

@@ -243,4 +243,69 @@
 - Lab này chứa Blind SQLi Vlun. App sử dụng một tracking cookie để phân tích dữ liệu, và thực hiện một truy vấn SQL chứa giá trị của cookie được gửi tới
 - Kết quả của truy vấn không được trả về, cũng như k có error message được hiển thị. Nhưng app chứa thông báo 'Welcome Back' nếu truy vấn trả về bất cứ hàng dữ liệu nào
 - DTB gồm một bảng ```users``` với cột ```username``` và ```pâssword```. Bạn cần khai thác Blind SQLi vuln để tìm ra pass của ```administrator``` user
-- 
+
+# Blind SQLi with conditional errors
+- :|| Vô tình bị xoá nhưng cái này không khác SQL là mấy ở, đều là check đúng sai
+- Khác ở chỗ thay vì dựa trên message trả về để xác định đúng sai thì ở đây sẽ dùng lỗi :|| (không lỗi hoặc lỗi
+## Lab lòng lợn
+- Như trên :|| sử dụng lỗi để xử lý lab lòng lợn này
+- Vào cheat sheet tại [đây](https://portswigger.net/web-security/sql-injection/cheat-sheet) hay bất cứ đâu khác :)) kiếm phần conditional error để mà check ![image](https://github.com/Myozz/Web_Applications/assets/94811005/5ab2c841-28d5-4f04-8b86-98b7cc18ebe7)
+- :|| Ta có thể thử từng cái trong cheatsheet để đoán được ver dtb của mục tiêu.
+  - ![image](https://github.com/Myozz/Web_Applications/assets/94811005/17c05689-9a80-4cce-9ce0-afd0ada12244) Vừa chôm thử ở Oracle nên ta xác định được mục tiêu dùng Oracle, và tôi cũng thử 2 điều kiện và kết quả rất ok :))
+  - Giờ chỉ cần sửa lại một chút để check độ dài của pass admin (mộn như làng) ![image](https://github.com/Myozz/Web_Applications/assets/94811005/068e26ee-f5c2-42a4-9aec-1ca4bc78233b)
+Chuyển sang Intruder và test từng số một thôi
+  - Xác định được pass của admin có 20 kí tự
+  - Quay lại repeater để chính lại code nhằm dò pass :)) ![image](https://github.com/Myozz/Web_Applications/assets/94811005/f346ffcb-9874-4630-a57f-38f823aa8c63)
+  - Chuyển lại sang Intruder dùng mode Cluster Bomb để có thể chơi 2 payload ![image](https://github.com/Myozz/Web_Applications/assets/94811005/f417fffa-16e7-4ea9-9312-8a29cbfdd555)
+  - Start attack và ta sẽ thu được pass
+
+# Chôm dữ liệu nhảy cảm thông qua error mess của SQL
+- Sự ngu dốt khi config dtb đối khi sẽ để lại hậu quả là error mess dài vcl. Nó có thể cung cấp thông tin có thể hữu ích cho atker. Ví dụ, xét thử error mess dưới đây, có thể xảy ra khi thêm một dấu ```'``` vào tham số ```id```
+
+      Unterminated string literal started at position 52 in SQL SELECT * FROM tracking WHERE id = '''. Expected char
+- À ừm :|| như đã thấy thì nó trả về cm cái truy vấn luôn, rất ngu tôi biết :)) với sự ngu dốt này thì ta cứ thể lợi dùng nó để atk :))
+- Như vậy, ta hoàn toàn có thể khiến app trả về error mess mà có chưuas một chút dữ liệu của truy vấn. Nó khiến blind SQLi trở thành Lee seen :)) hay visible SQLi
+- Bạn có thể sử dụng hàm ```cast()``` (hàm chuyển kiểu dữ liệu). Ví dụ về hàm này, tưởng tượng có một truy vấn như sau:
+
+      CAST((SELECT example_column FROM example_table) AS int)
+- Thường thì, dữ liệu ta cần là string. Ví dụ ở trên giúp ta chuyển về dạng int, và điều này có thể khiến xảy ra lỗi
+
+       ERROR: invalid input syntax for type integer: "Example data"
+- Và đấy :)) ta đã chôm được thông tin cần chôm
+## Lab lo li
+- Lab này có một SQLi vuln. App sử dụng tracking cookie để phân tích dữ liệu và thực hiện truy vấn SQL. Kết quả của truy vấn sẽ không được trả về
+- Nhiệm vụ của ta vẫn là lấy pass admin nhưng phải lợi dụng verbose error mess vừa được học
+- khó phết chứ đùa :((
+  - Xem qua cheat sheet cái đã nào ![image](https://github.com/Myozz/Web_Applications/assets/94811005/abcece16-6200-42c7-8b44-019e0f4ada33)
+  - Lấy thử câu lệnh của MsSQL đi, tống vào repeater và nó sẽ trả về như này ![image](https://github.com/Myozz/Web_Applications/assets/94811005/2ee3b40b-22d0-465f-95b6-72a351e9fb67) . Có vẻ như nó không thể đọc được hết câu lệnh, nên ta bắt buộc phải tìm cách thu ngắn nó lại.
+  - ![image](https://github.com/Myozz/Web_Applications/assets/94811005/281f5646-59f1-45ec-89f7-dcb7f6f0380d)
+Sau khi chỉnh lại code cho nó đúng cũng như ngắn gọn hơn để có thể test thì lỗi trả về sẽ như này, lỗi này là do ta không có phép so sánh nào ở đoạn code (vì đoạn code đang nằm ở where nên phải có biểu thức logic)
+  - Thêm ```1=``` vào trước code, ta đã truy cập thành công. Tuy nhiên đây mới chỉ là bước test :|| mục tiêu của ta là lấy pass của admin ![image](https://github.com/Myozz/Web_Applications/assets/94811005/9634d8bc-e5ce-442a-82f0-627bd876e1fc)
+  - Nghĩ nào, code không cho phép ta viết quá dài. Liệu có cách nào để ta viết code đầy đủ mà không bị dính cái này không :||. Đúng rồi đấy :)) xoá cm cái ```TrackingID``` đi
+  - ![image](https://github.com/Myozz/Web_Applications/assets/94811005/e53f03d3-9ef4-4eca-b4b5-cc2794df3503)
+Sửa lại code và ta thu lại được một lỗi rằng có quá nhiều hàng được trả về, ta chỉ có thể trả về một hàng thôi
+  - ![image](https://github.com/Myozz/Web_Applications/assets/94811005/ee2e4fbf-9bbb-4656-8789-c75806b9ba19)
+hm.... lỗi này mở ra một con đường mới :|| mục tiêu đã lộ diện. Lỗi nãy xảy ra do ta thay đổi dạng string sang int
+  - ![image](https://github.com/Myozz/Web_Applications/assets/94811005/ee373021-bf1f-4338-b1e1-91d9e13f5116)
+Làm một cấu truy vấn tương tự với password :)) và ta thu được password
+
+# Khái thác blind SQLi bằng cách kích hoạt time delay
+- Nếu app gặp phải lỗi dtb khi truy vấn SQL được thực thi và xử lý, sẽ không có bất kì điểm khác biệt nào ở response. Nó có nghĩa là các kĩ thuật trước là vô dụng
+- Trong trường hợp này, việc ta có thể làm là kích hoạt time delay để xác định xem giá trị trả về là đúng hay sai. Vì truy vấn SQL thường xử lý đồng bộ với nhau bởi app, độ trễ trong thực thi truy vấn SQL cũng sẽ delay HTTP response. ĐIều này cho phép ta xác định điều kiện thêm
+- Kĩ thuật kích hoạt time delay dành riếng cho loại dtb được sử dụng. Ví dụ, trên Ms SQL Serverr, bạn có thể sử dụng một điều kiện để test delay
+
+      '; IF (1=2) WAITFOR DELAY '0:0:10'--
+      '; IF (1=1) WAITFOR DELAY '0:0:10'--
+- Nhìn là đủ hiểu, nếu điều kiện sai/đúng thì sẽ có time delay như kia
+- Sử dugj kĩ thuật này, chúng ta có thể thu thập dữ liệu bằng cách kiểm tra mỗi kí tự một lằn
+
+      '; IF (SELECT COUNT(Username) FROM Users WHERE Username = 'Administrator' AND SUBSTRING(Password, 1, 1) > 'm') = 1 WAITFOR DELAY '0:0:{delay}'--
+## Lab lầy lội
+- Rõ ràng là vẫn như các lab trên, nhưng lần này ta sẽ sử dụng time delay để lấy pass của admin
+- Check qua cheat sheet, thử từng cái để xác định phiên bản SQL
+- Lab như lìn :(( sai hay đúng thì nó đều trả về như nhau thành ra khó nhận biết quá
+
+      '%3b select+case+when+(1=1)+then+pg_sleep(10)+else+pg_sleep(0)+end--
+- Sau khi test lòi lìn thì ta sẽ bắt đầu kiểm tra độ dài pass (chắc vẫn là 20 thôi) ![image](https://github.com/Myozz/Web_Applications/assets/94811005/bcd7f087-223c-455e-90f5-b20f5db3a3f2)
+![image](https://github.com/Myozz/Web_Applications/assets/94811005/707a69ec-9eb3-4987-8f48-bf46bdecff61)
+- Giờ thì đến giải đoạn mò pass

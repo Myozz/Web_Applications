@@ -339,4 +339,7 @@ Làm một cấu truy vấn tương tự với password :)) và ta thu được 
 ## Liêm lab
 - Lab này vẫn giống lab trước, khác ở chỗ ta cần dùng OAST để tìm ra pass của ```admin```
 - Vẫn là tận dụng cheatsheet ![image](https://github.com/Myozz/Web_Applications/assets/94811005/c1d62fa8-9e16-4533-8ac9-ba74bd3f56e1)
-- 
+
+# SQLi trong các bối cảnh khác nhau
+- Ở lab trước,ta đã sử dụng chuỗi truy vấn để inject SQL payload. Tuy nhiên, bạn có thể thực hiện SQLi atk bằng input ở những vị trí truy vấn trong app. Ví dụ, một số web để input ở dạng ```json``` hay ```xml``` và sử dụng để truy vấn dtb
+- Nhưng định dạng khác nhau có thể cung cấp những cách khác nhau cho bạn để atk k

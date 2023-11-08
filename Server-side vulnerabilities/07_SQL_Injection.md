@@ -342,4 +342,21 @@ Làm một cấu truy vấn tương tự với password :)) và ta thu được 
 
 # SQLi trong các bối cảnh khác nhau
 - Ở lab trước,ta đã sử dụng chuỗi truy vấn để inject SQL payload. Tuy nhiên, bạn có thể thực hiện SQLi atk bằng input ở những vị trí truy vấn trong app. Ví dụ, một số web để input ở dạng ```json``` hay ```xml``` và sử dụng để truy vấn dtb
-- Nhưng định dạng khác nhau có thể cung cấp những cách khác nhau cho bạn để atk k
+- Nhưng định dạng khác nhau có thể cung cấp những cách khác nhau cho bạn làm xáo trộn các cuộc atk bị chặn bởi WAF và các cơ chế phòng thủ khác
+- Triển khai yếu thường gây ra các SQLi phổ biến trong request, nên bạn có bạn bypass những filter này bằng cách encoding hay escaping char trong keyword bị chặn. Ví dụ, SQLi XML-based dưới đây sử dụng một XML escape sequence để encdoe kí tự  ```S``` trong ```SELECT```
+
+      <stockCheck>
+          <productId>123</productId>
+          <storeId>999 &#x53;ELECT * FROM information_schema.tables</storeId>
+      </stockCheck>
+- Cái này sẽ được decode phía server trước được gửi qua trình thông dịch của SQL
+## Lab lông lá
+- Sử dụng UNION atk để lấy acc admin
+- Nếu ta có gắng dùng UNION thì sẽ có thông báo atk detect từ mục tiêu, vậy là ta sẽ phải bypass được cơ chế phòng thủ của mục tiêu ![image](https://github.com/Myozz/Web_Applications/assets/94811005/0db98a88-a15b-4a8e-8206-e60ba7940f6b)
+- Download Extensions ```Hackvertor``` nếu chưa có
+- Quay lại request ở Repeater, ta chọn đoạn payload cần xử lý, chuột phải, Extensions > Hackvertor > Encode > dec_entities/hex_entities
+- Và bùm ![image](https://github.com/Myozz/Web_Applications/assets/94811005/aac8c546-ab67-4b9f-b6dc-120794cff2c3)
+
+# SQLi bậc 2
+- SQLi bậc 1 xảy ra khi app xử lý input của user từ một HTTP request và kết hợp các input vào một truy vấn SQL theo cách không an toàn
+- SQLi bậc 2 xảy ra khi app lấy user input từ một HTTP request và lưu trữ chúng để dùng trong tương lai

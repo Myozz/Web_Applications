@@ -359,4 +359,19 @@ Làm một cấu truy vấn tương tự với password :)) và ta thu được 
 
 # SQLi bậc 2
 - SQLi bậc 1 xảy ra khi app xử lý input của user từ một HTTP request và kết hợp các input vào một truy vấn SQL theo cách không an toàn
-- SQLi bậc 2 xảy ra khi app lấy user input từ một HTTP request và lưu trữ chúng để dùng trong tương lai
+- SQLi bậc 2 xảy ra khi app lấy user input từ một HTTP request và lưu trữ chúng để dùng trong tương lai. Điều này thường được thực hiện bằng cách nhét input vào dtb, nhưng không có vuln xảy ra tại điểm mà data dược lưu trữ. Sau đấy, khi xử lý một HTTP request khác, app khai thác thông tin được lưu trữ và đưa nó vào trong truy vấn SQL. Vì lí do này, SQLi bậc 2 còn được gọi là SQLi lưu trữ
+- SQLi bậc 2 thường xảy ra trong tình huống mà dev sợ SQLi vuln, và xử lý thông tin cẩn thận với input vào trong dtb. Khi data được xử lý sau, nó được coi là an toàn, khi nó được quăng vào dtb . Tại điểm này, data được xử lý không an toàn, bởi dev đần vcl nghĩ nó được được trusted
+
+# Làm sao để counter SQLi
+- Ta có thể ngăn chặn hầu hết các loại SQLi bằng cách sử dụng các truy vấn được tham số hoá thay vì ở dạng xâu. Những truy vấn này cũng được gọi là "câu lệnh chuẩn bị trước"
+- Đoạn code dưới đấy chứa SQLi vuln bửi user input được nối tiếp với truy vấn
+
+      String query = "SELECT * FROM products WHERE category = '"+ input + "'";
+      Statement statement = connection.createStatement();
+      ResultSet resultSet = statement.executeQuery(query);
+- Ta có thể xử lý lại đoạn code để tránh SQLi bị khai thác
+
+      String query = "SELECT * FROM products WHERE category = '"+ input + "'";
+      Statement statement = connection.createStatement();
+      ResultSet resultSet = statement.executeQuery(query);
+- Ta có thể sử dụng truy vấn tham số hoá trong mọi tình huống mà input không đáng tin trong hệ thống, bao gồm ```where``` và ```insert``` hay ```update```. Chúng không thể sử dụng để xử lý input trong các phần khác của truy vấn, như là bảng về cột, hay ```order_by```. Chức năng app mà đặt data không được tin tưởng vào các phần của truy vấn 

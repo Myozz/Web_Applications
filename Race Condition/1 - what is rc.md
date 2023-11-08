@@ -7,7 +7,12 @@
 # Limit overrun race condition (Điều kiện thực hiện vượt qua giới hạn)
 - Loại race condition được biết tới nhiều nhất cho phép bạn vượt qua một số loại giới hạn được sử dụng bởi bussiness logic của app
 - Ví dụ, hãy xét một cửa hàng online cho phép bạn nhập một promo code để có được phiếu giảm giá. Để áp dụng phiếu giảm giá đó, ap sẽ thực hiện những tác vụ bậc cao:
-
+  - Kiểm tra xem bạn đã sử dụng code chưa
+  - App dụng giảm giá vào sản phẩm
+  - Cấp nhật các bản ghi trong dtb để cho biết rằng ta đã sử dụng code này rồi
+- Nếu bạn muốn sử dụng lại code này, sẽ có một kiểm tra ở đầu tiến trình nhằm ngăn chặn bạn làm diều đó ![image](https://github.com/Myozz/Web_Applications/assets/94811005/afb28664-7fe8-41d9-8218-e3ad364c110c)
+- Giờ hãy xét tới điều gì sẽ xảy ra nếu một user mà chưa từng sử dụng code trước đó nhập cùng một code 2 lần gần như cùng một lúc ![image](https://github.com/Myozz/Web_Applications/assets/94811005/b49195b5-0654-4a55-b4e8-b75cd98becd5)
+- Như bạn có thể thấy, app chuyển sang trạng thái phụ tạm thời. Trạng thái mà đi vào rồi exit trước khi request đang chạy hoàn thành. Trong trường hợp này, trạng thái phụ bắt đầu khi server bắt đầu thực hiện request đầu tiền, và kết thúc khi nó cập nhật dữ liệu trong dtb để xác định xem ta sử dụng code hay chưa. Điều này giới thiệu một cửa sổ đua (race window) nhỏ trong suốt thời điểm mà bạn có thể dùng code bao nhiêu lần tuỳ ý
 
 
 

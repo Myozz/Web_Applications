@@ -133,3 +133,23 @@
 ## Prove the concept (tìm hiểu khái niệm)
 - Cố gắng hiểu điều gì đang xảy ra, loại bỏ request thừa, và đảm bảo bạn có thể nhân rộng hiệu ứng
 - Race condition phức tạp có thể gây ra những sự bất thường, vì vậy con đường impact mạnh nhất không phải lúc nào cũng hiện ngay trước mắt. Nó có thể giúp ta coi rằng một race conditon như một điểm yếu trong cấu trúc hươn là một lỗ hổng
+
+# Multi-endpoint race conditions
+- Có lẽ form trực quan nhất của những race condition này là những điều kiện liên quan đến việc gửi yêu cầu đến nhiều endpoint cùng lúc
+- Xét về lỗi logic classic trong online stores nơi mà bạn thêm một item vào giỏ hàng, rồi trả tiền, sau đó thêm nhiều item vào giỏ trước khi force-browsing tói trang xác nhận order
+- Một biến thể của vuln này có thể xảy ra khi xác nhận thanh toán và order được thực hiện trong suốt quá trình xử lý một request dơn. Trạng thái của máy cho trạng thái order có lẽ sẽ trông như này ![image](https://github.com/Myozz/Web_Applications/assets/94811005/fb438e0c-178e-436c-bc9f-06dcc53575fc)
+- Trong trường hợp này, bạn có thể thêm nhiều item ơn vào giỏ trong suốt race window giữa lúc xác nhận thành toán và khi order confirm
+## Căn chỉnh multi-endpoint race windows
+- Khi test multi-endpoint race condition, bạn có thể bắt gặp vài vấn đề đang cố gắng để line up race windows cho mỗi request, thậm chí nếu bạn gửi nó chính xác cùng lúc sử dụng single-packet technique ![image](https://github.com/Myozz/Web_Applications/assets/94811005/4ce41a7c-824c-4306-98aa-5566c735a908)
+- Vấn đề chung này trước hết được gây ra bởi 2 yếu tôs
+  - **Độ trễ do kiến trúc mạng**: Ví dụ, có thể có tí delay bất kể khi nào front-end server triển khai một kết nối mới tới back-end. Giao thức được sử dụng có thể có một tác động lớn.
+  - **Độ trễ do xử lý riếng endpoint**: Các endpoint khác nhau vốn đã khác nhau về time xử lý, phụ thuộc vào những hoạt động mà chúng kích hoạt
+- May mắn thay, có những hướng giải quyết tiềm năng cho cả hai vấn đề trên
+### Connnection warming
+- Back-end connection delay không thường can thiệp với race condition atk bởi chúng thường delay các request song song như nhau, nên request luôn ở trạng thái đồng bộ
+- Khá cần thiết để có thể phân biệt những delay này từ những cái được gây ra bởi yếu tố endpoint dành riêng. Một cách để làm điieuf này là "warming' kết nối với một hay nhiều request không đáng kể để thấy được nếu nó làm trơn tru phần xử lý còn lại. Trong Repeater, bạn có thể truy thêm một ```GET``` request cho homepage tới phần đầu của tab group, sau đó sử dụng ```send group in sequence (single connection)```
+- Nếu request đầu tiên vẫn có một thời gian xử lý dài hơn, nhưng các request còn lại lại được xử lý cùng lúc, bạn có thể bỏ qua delay này và tiếp tục test như bình thường
+## Lab liếc
+- Lỗi thanh toán của lab này chứa một race condition cho phép bạn thành toán với giá cả không tưởng
+- Để giải lab này. hãy thành toán quả Jacket
+- 

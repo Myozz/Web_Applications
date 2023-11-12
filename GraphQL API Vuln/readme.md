@@ -244,3 +244,37 @@ và trả về:
 - Import vào InQL Scanner ![image](https://github.com/Myozz/Web_Applications/assets/94811005/c3952d5a-aef9-4dc0-81fa-275f4f0779ad)
 - Send sang repeater nhưng cần phải dùng URL encode để có thể request
 - Send request rồi quay lại InQL, check mutation ta thấy có một mutation để xoá user, encode sang url rồi cũng send sáng repeater để request tiếp thôi
+
+# Bypass rate limit sử dụng aliases (bí danh)
+- Thông thường, đối tượng GraphQL không thể chứa nhiều thuộc tính với cùng tên. Aliases cho phép bạn bypass sự hạn chế này bằng cách đặt tên rõ ràng cho các thuộc tính mà bạn muốn API trả về. Bạn có thể sử dụng aliases để trả về nhiều trường hợp của cùng loại đối tượng trong một request
+> [!NOTE]
+> Thêng tin thêm về GraphQL aliase, xem ở [đây](https://portswigger.net/web-security/graphql/what-is-graphql#aliases)
+- Trong khi aliases được dự định để giới hạn số API call bạn cần tạo, chúng có thể cũng sử dụng để brute force một GraphQL endpoint
+- Nhiều endpoint sẽ có một số sẽ có một số loại rate limiter để ngăn chặn brute force at. Một số rate limiter hoạt động dựa trên số HTTP request nhận được hơn là số hoạt động được thực hiện ở endpoint. Bởi vì aliases cho phép bạn gửi nhiều truy vấn trên một HTTP mess đơn một cách hiệu quả, họ có thể bypass được hạn chế này
+- Một ví dụ đơn giản dưới đây cho thấy một series truy vấn aliases kiểm tra mã giảm giá có hợp lệ hay không. Hoạt động này có thể bypass rate limit vì nó là một HTTP request đơn, mặc dù nó có thể được sử dụng để kiểm tra một lượng lớn mã giảm giá trong một lần
+
+          #Request with aliased queries
+      
+          query isValidDiscount($code: Int) {
+              isvalidDiscount(code:$code){
+                  valid
+              }
+              isValidDiscount2:isValidDiscount(code:$code){
+                  valid
+              }
+              isValidDiscount3:isValidDiscount(code:$code){
+                  valid
+              }
+          }
+## Lab: Bypass GraphQL brute force protection
+- Cơ chế đăng nhập người dùng trong lab này được hỗ trợ bởi GraphQL API. API endpoint có một rate limiter mà trả về một lỗi nếu nó nhận quá nhiều request từ cũng một nguồn trong khoảng thời gian ngắn
+- Để giải lab này, brute vào cơ chế login để đăng nhập vào tài khoản ```carlos```. Sử dụng wordlist được cung cấp
+
+# GraphQL CSRF (Cross-side Request Forgery) vuln cho phép một atker khiến cho user thực hiện hành động mà họ không định làm. Được thực hiện bằng cách tạo một website độc tạo ra một cross-domain request tới vuln app
+> Để biết thêm thông tin về CSRF vuln, ghế quá [đấy](https://portswigger.net/web-security/csrf)
+- GraphQL có thể sử dụng như mộtvector cho CSRF atk, mà theo đó một atker tạo một exploit mà gây ra một khiến trình duyệt của nạn nhân gửi một truy vấn đọc dưới quyền của user đó
+## CSRF của các GraphQL vuln phát sinh như nào
+- CSRF vuln có thể phát sinh ở nơi mà một GraphQL endpoint không xác nhận loại nội dung của request để gửi tới nó và không có CSRF token nào được thực hiện
+- POST request mà sử dụng một loại nội dung của ```application/json``` là an toàn với việc giả mão miễn là loại nội dung đó được xác thực
+- Tuy nhiên, một phương thức khác như GET, hay bất kể request nào khác mà có một loại nội dung của ```x-www-form-urlencode```, có thể được gửi bởi trình duyệt và khiến user dễ bị tấn công nếu endpoint chấp nhận những request này. Trong trường hợp này, kẻ tấn công có thể khaithacs thủ công để gửi các yêu cầu độc hại tới API
+> Các bước để xây dựng một cuộc tấn công CSRF và thực hiện khai thác đối với các lỗ hổng CSTF dựa trên GraphQL cũng giống như đối với các lỗ hổng CSTF thông thường

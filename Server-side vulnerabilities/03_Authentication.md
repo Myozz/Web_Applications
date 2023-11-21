@@ -63,6 +63,21 @@
   - Triển khai một danh sách username có thể hợp lệ.
   - Dùng một short list mà bạn cho là sẽ có ít nhất một user có nó. Điều quan trọng là, số pass bạn lựa chọn không được nhiều hơn số giới hạn số lần sai pass.
   - Sử dụng tool như Burp Intruder, thử cách pass được chọn với mỗi username. Bằng cách này, bạn có thể brute force mỗi acc mà không bị khoá ac. Bạn chỉ cần một user để sử dụng một trong ba pass để chôm được tài khoản
+## User input limit
+- Đại khái là thay vì block acc thì nó sẽ block IP
+- Đương nhiên vẫn sẽ có cách bypass, ví dụ gửi nhiều pass chỉ trong một request, như dưới đây
+
+![image](https://github.com/Myozz/Web_Applications/assets/94811005/af076674-d4fb-4ee2-ab7a-9e9c0312b32f)
+
+# HTTP basic auth
+- Mặc dù cũ vl rồi nhứng tính đơn giản và dễ triển khai tương đối của HTTP basic auth. Trong HTTP basic auth, máy chủ nhận một auth token từ server, được cấu trúc bằng cách nối username với pass, rồi encode bằng Base64. Token này được lưu trữ và quản lý bởi trình duyệt, mà nó có thể tự động thêm token vào bất kì header xác thực nào trong mọi request như dưới đây:
+
+```Authorization: Basic base64(username:password)```
+- Vì một vài lí do, điều này thường không được xem xết là một phương thức xác thực bảo mật. Đầu tiên, nó liên quan đến việc gửi lặp đi lặp lại user login credential với mỗi request. Nếu web cũng không triển khai HSTS (HTTP Strict Transport Security - một chính sách bảo vệ web), thông tin user có thể bị ghi lại trong một đợt atk man-in-the-middle (trung gian)
+- Ngoài ra, việc triển khai HTTP basic auth thương không hỗ trợ brute-force protection. Vì token chứa những giá trị tĩnh, điều này có thể bị lợi dụng để brute force
+- HTTP basic auth cũng có thể bị lợi dụng để khai thác các lỗ hổng liên quan đến session
+- Trong một vài trường hợp, khai thác HTTP basic auth chỉ có thể cấp quyền cho atker truy cập vào cái page cùi bắp. Tuy nhiên, ngoài việc cung cấp một môi trường để atk, thông tin xác thực được sử dụng theo cách này có thể bị tái sử dụng ở page khác (ví dụ hack được user:pass ở page cùi bắp, nhưng thằng user set ở page nào cũng vân pass đấy thì bú)
+
 # Bypass two-factor authentication (Bypass xác minh 2 bước)
 - Đôi khi, việc triển khai 2FA sẽ có những sai sót khiến nó có thể bị bypass dễ dàng.
 - Nếu user cần nhập pass trước khi phải nhập mã xác minh 2fA ở 2 trang riêng biệt, user thực ra đã ở trạng thái "đã login" khi nhập mật khẩu xong (nhập 2FA chỉ đơn giản là để hiện nó ra). Trong trường hợp này, có thể ta sẽ trực tiếp skip 2FA ngay sau khi nhập mật khẩu. Thỉnh thoảng, bạn sẽ nhận ra một website không thực sự kiếm tra xem bạn có hoàn thành bước 2 hay không trước khi loading page

@@ -98,5 +98,40 @@
   - Dùng path ta xem được bên wiener, là ```/my-account```
   - Có cái nút Back to Home, dùng nút đấy để back về trang chủ rồi click lại vào My Account là xong ![image](https://github.com/Myozz/Web_Applications/assets/94811005/7436221c-1707-455c-97ef-4878f9351b42)
 ## Lỗi logic trong 2FA
+- Đôi khi lỗi logic trong 2FA có nghĩa là sau khi một user hoàn thành bước login, website sẽ không thực sự kiểm tra bước thứ 2
+- Ví dụ, user login với thông tin xác thực thông thường ở bước đầu tiên như dưới đây
 
+        POST /login-steps/first HTTP/1.1
+        Host: vulnerable-website.com
+        ...
+        username=carlos&password=qwerty
+- Chúng sau đó được chỉ định cho một cookie mà có liên quan tới acc của chúng, trước khi được đem tới bước 2 (tức là lúc này nó vốn dĩ đã login vào rồi)
 
+      HTTP/1.1 200 OK
+      Set-Cookie: account=carlos
+      
+      GET /login-steps/second HTTP/1.1
+      Cookie: account=carlos
+- Khi nhập code, request sử dụng cookie để xác định xem user đang cố gắng truy cập vào acc nào :))
+
+      POST /login-steps/second HTTP/1.1
+      Host: vulnerable-website.com
+      Cookie: account=carlos
+      ...
+      verification-code=123456
+- Trong trường hợp này, một atker có thể login sử dụng thông tin của họ nhưng rồi thay đổi giá trị của cookie thành các username khác khi submit
+
+      POST /login-steps/second HTTP/1.1
+      Host: vulnerable-website.com
+      Cookie: account=victim-user
+      ...
+      verification-code=123456
+- Điều này cực văn lê minh kỳ nguy hiểm nếu atker sau đó có thể brute force mã xác thực, và :|| ye
+## Brute-force 2FA code
+- Làm tương tự như với pass, web cần phải có các cơ chế để ngăn chặn brute force 2FA. Điều này đặc biệt quan trọng bởi vì code đường là 4-6 chữ số. Nếu k có biện pháp bảo vệ thì bypass ez
+- Một số web nỗ lực ngăn cản điều này bằng cách tự động log out một user nếu họ nhập sai một số lần nhất định. Đây là cách không hiệu quả trên thực tế bởi một atker có thể gửi cùng lúc nhiều request (Burp Intruder)
+
+# Lỗ hổng trong các cơ chế xác thực khác
+## Giữ người dùng đăng nhập
+- Một cái tính năng khá phổ biến là khi đóng trình duyệt, mà khi vào lại ta không cần phải login lại
+- Tính năng này thường thực hiện bằng cách tạo một "remember me" token, cái mà được lưu trữ trong một 

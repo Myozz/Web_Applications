@@ -136,3 +136,26 @@
 - Một cái tính năng khá phổ biến là khi đóng trình duyệt, mà khi vào lại ta không cần phải login lại
 - Tính năng này thường thực hiện bằng cách tạo một "remember me" token, cái mà được lưu trữ trong một cookie. Nếu lấy được cookie này thì ta có thể bypass được bước login, trên thực tế thì cookie không thể đoán được. Tuy nhiên, một số web tạo cookie dựa trên một sự kết nối có thể đoán được của các giá trị tĩnh, như là username và một mốc thời gian. Một số thậm chí sử dụng pass làm một phần của cookie. Sẽ là mối nguy hại nếu một atker có thể tạo tài khoản của riêng rồi dùng cookie của họ để tìm ra quy luật của cookie. Rồi từ đó brute force các tài khoản khác
 - Một số web giả sử rằng nếu cookie được mã hoá bằng cách nào đó nó sẽ không thể đoán kể cả khi nó sử dụng dữ liệu tĩnh. Điều này nghe có vẻ đúng nếu được thực hiện đúng cách, thường thì việc mã hoá cookie sử dụng một dạng mã hoá two-way đơn giản giống base64 không cung cấp bất cứ sự bảo mật nào. Thậm chí sử dụng một loại mã hoá hash một chiều thì vẫn chưa hoàn toàn an toàn. Nếu atker có thể xác định được thuật toán hash, và không có salt được sử dụng, họ có thể brute force cookie bằng cách hash wordlist của họ. Phương thức này có thể sử dụng để bypass giới hạn lần login nếu một giới hạn tương tự không được áp dụng với cookie
+- Thậm chí nếu atker không thể tạo tài khoản của riêng họ, họ có lẽ vẫn có thể khai thác lỗ hổng này. Sử dụng một kĩ thuật phổ biến như XSS, một atker có thể lấy cắp được cookie lưu trữ pass của người dùng khác và suy ra cấu trúc của cookie từ đó. Nếu website được xây dựng sử dụng open-source framework, những chi tiết quan trọng trong cấu trúc của cookie thậm chí còn được public
+- Trong một vài trường hợp hiếm gặp, nó có lẽ sẽ khả thi để lấy được luôn pass của user từ cookie, thậm chí nếu nó được hash đi nữa. Những phiên bản hash của của các pass phổ biến là có sẵn, vậy nên nếu một user pass xuất hiện trong list này, việc decrypt hash có thể đơn giản như là paste chúng vào công cụ tìm kiếm. Điều này chứng tỏ sự quan trọng của salt trong mã hoá
+
+## Reset user pass
+- Trong thực tế, có một lựa chọn là quên pass, vậy tức là có một cách để reset pass. Thông thường phương thức xác thực bằng pass là không thể rồi, web phải có một phương thức thay thế để đảm bảo rằng đấy chính là chủ nhân tìa khoản. Vì lí do này, tính năng reset pass vốn rất nguy hiểm và cần được cải thiện về bảo mật
+### Gửi pass bằng email
+- Thường thì có một số web sẽ tạo ra một pass mới và gửi cho user qua mail
+- Nói chung việc gửi pass kiểu này thường bị tránh :||. Trong trường hợp này, pass được gửi sẽ hết hạn trong khoảng time ngắn hay user phải change pass ngay lập tức. Mặt khác, điều này thì lại ngon nghẻ để chơi man-in-middle atk
+- Email thường không được xem xét được coi là an toàn vì vì inbox vừa ổn định vừa không được thiết kế để lưu trữ an toàn thông tin bí mật. Nhiều user cũng được đồng bộ tự động với inbox của họ giữa nhiều thiết bị
+### Reset pass qua URL
+- Một phương thức reset pass khác là gửi một URL đặc biệt tới user để dẫn đến trang reset pass. Nếu URL này mà dễ đoán thì rõ ràng rất nguy hiểm, kiểu như:
+
+      http://vulnerable-website.com/reset-password?user=victim-user
+- Trong ví dụ này, một atker có thể thay đổi tham số ```user``` để bất kì username nào xác định được. Chúng có thể sẽ đưa thẳng tới trang reset pass của user đấy
+- Túm lại nếu muốn dùng cách reset này thì phải đảm bảo về độ phức tạp, khó đoán của URL. Trong th tốt nhất, URL này nên không cung cấp bất cứ gợi ý nào về user
+
+      http://vulnerable-website.com/reset-password?token=a0ba0d1cb3b63d13822572fcff1a241895d893f659164d4cc550b421ebdd48a8
+- Khi user tuy cập URL, hệ thông nên kiểm tra nếu token này tồn tại trong back-end và, nếu vậy; pass của user nào sẽ chuẩn bị được reset
+- Tuy nhiên, một số web cũng không thể xác thức lại token ghi form được gửi đi. Trong trường hợp này, một atker có thể vào reset form từ chính account của họ, xoá token và tận dụng page này để reset một user's pass bất kỳ
+- Nếu URL trong reset emaiol được tạo ra động, nó có thể gây ra lỗ hổng để thực hiện pass reset poisoning. Trong tình hướng này, một atkẻ có thể chôm token của người khác và sử dụng để change pass
+## Changing user pass
+- Tiêu biểu, đổi pass liên quan đến việc nhập pass hiện tại và nhập 2 lần pass mới. Những page này cũng dùng cùng cái phương thức chess pass như login form. Vì vậy, những page này có thể có lỗ hổng giống nhau
+- Chức năng thay pass có thể nguy hiểm nếu nó cho phép một atker truy cập trực tập mà không cần log in. Ví dụ, nếu một username được cung capá trong một field ẩn, một atker có thể sửa giá trị request thành mục tiêu bất kì. Điều này có thể được thực thi để liệt kê và brute force pass

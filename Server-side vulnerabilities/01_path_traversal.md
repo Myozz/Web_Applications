@@ -25,3 +25,10 @@
   - Bây giờ ta chia con trỏ vào một img bất kỳ rồi click
   - Trên **Element** sau đó sẽ hiện ra path của img đó ![image](https://github.com/Myozz/Web_Applications/assets/94811005/d3670b86-4fd0-4524-b63c-4e5f048b76ae)
   - Ok bây giờ đến bước sửa URL, ta sẽ copy path của img rồi paste rồi đuôi của url page, khi đó nó sẽ như này ```https://0a4800a404ca2b1481073efa00eb008f.web-security-academy.net/image?filename=../../../etc/passwd```. Khi đó ta sẽ lấy được ```/etc/passwd```
+
+# Những trở ngại chung khi khai thác lộ hổng path traversal (truyền tải đường dẫn)
+- Nhiều app đặt user input vào đường dẫn tệp sẽ triển khai các biện pháp def chống lại các cuộc tấn công truyền tải đường dẫn. Những điều này có thể sẽ bị bỏ qua
+- Nếu một dải/khối trình tự duyệt thư mục từ filename dược user cung cáp, nó có lẽ sẽ khả thi để bypass def bằng cách sử dụng các thuật toán đa dạng
+- Bạn có lẽ sẽ có thể sử dụng một path tuyệt đối từ filesystem root, như ```filename=/etc/passwd```, để tham chiếu trực tiếp một file mà không cần sử dụng bất cứ trình tự đường dẫn nào
+- Bạn có thể sử dụng trình tự duyệt lồng nhau, như ```....//``` hay ```....\/```. Chúng sẽ quay trở lại các trình tự truyền tải đơn giản khi trình tự bên trong bị loại bỏ
+- Trong một số hoàn cảnh, như là trong một URL path hay tham số ```filename``` của một ```multipart/form-data``` request
